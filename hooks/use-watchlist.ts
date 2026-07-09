@@ -96,8 +96,13 @@ export function useWatchlist() {
     setPendingDuplicate(null);
   }, []);
 
-  // Completed in Task 9 (delete) and Task 10 (mount-time restore/refetch).
-  const removeStock = useCallback((_code: string) => {}, []);
+  const removeStock = useCallback((code: string) => {
+    setItems((prev) => {
+      const next = prev.filter((i) => i.code !== code);
+      writeStoredEntries(toEntries(next));
+      return next;
+    });
+  }, []);
 
   return {
     items,

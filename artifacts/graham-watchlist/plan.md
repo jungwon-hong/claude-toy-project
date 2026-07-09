@@ -77,8 +77,7 @@
 | `services/dart-client.ts` / `.test.ts` | New | 1, 4 |
 | `app/api/stocks/[code]/price/route.ts` / `.test.ts` | New | 3 |
 | `app/api/stocks/[code]/graham/route.ts` / `.test.ts` | New | 4 |
-| `hooks/use-watchlist.ts` / `.test.ts` | New | 6, 9, 10 |
-| `hooks/use-stock-detail.ts` / `.test.ts` | New | 8, 10 |
+| `hooks/use-watchlist.ts` / `.test.ts` | New | 6, 7, 9, 10 |
 | `components/graham-watchlist/stock-search.tsx` / `.test.tsx` | New | 5 |
 | `components/graham-watchlist/watchlist.tsx` / `.test.tsx` | New | 6, 9 |
 | `components/graham-watchlist/duplicate-dialog.tsx` / `.test.tsx` | New | 7 |
@@ -256,7 +255,7 @@
 
 ---
 
-### Task 9: 워치리스트 항목 삭제
+### Task 9: 워치리스트 항목 삭제 ✅
 
 - **담당 시나리오**: Scenario 7 (전체)
 - **크기**: S (1-2 파일)
@@ -265,7 +264,7 @@
   - `hooks/use-watchlist.ts`의 삭제 함수를 완성 (localStorage 갱신 포함)
   - `components/graham-watchlist/watchlist.tsx`에서 Task 6이 렌더링한 삭제 아이콘의 클릭 핸들러를 실제 삭제 함수에 연결
 - **수용 기준**:
-  - [ ] 종목 삭제 버튼 클릭 → 해당 종목명이 워치리스트에서 사라지고 나머지 종목은 그대로 남는다
+  - [x] 종목 삭제 버튼 클릭 → 해당 종목명이 워치리스트에서 사라지고 나머지 종목은 그대로 남는다
 - **검증**: `bun run test -- watchlist`
 
 ---
