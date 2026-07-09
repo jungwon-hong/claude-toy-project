@@ -132,7 +132,7 @@
 
 ---
 
-### Task 3: 종목 시세 조회 API
+### Task 3: 종목 시세 조회 API ✅
 
 - **담당 시나리오**: Scenario 2, Scenario 4 (가격 표시 부분)
 - **크기**: M (3-5 파일)
@@ -144,8 +144,8 @@
   - `services/data-go-kr-client.ts`에 종목코드 기준 단건 시세 조회 함수 추가
   - `app/api/stocks/[code]/price/route.ts` / `.test.ts`
 - **수용 기준**:
-  - [ ] 존재하는 종목코드로 요청 → `{ price, changeRate, marketCap }`이 포함된 200 응답
-  - [ ] data.go.kr 응답이 비정상(빈 결과)인 경우 → 명확한 에러 상태코드와 메시지를 반환한다
+  - [x] 존재하는 종목코드로 요청 → `{ price, changeRate, marketCap }`이 포함된 200 응답
+  - [x] data.go.kr 응답이 비정상(빈 결과)인 경우 → 명확한 에러 상태코드와 메시지를 반환한다
 - **검증**: `bun run test -- price-route` (data.go.kr 호출은 mock)
 
 ---

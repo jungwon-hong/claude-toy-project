@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   fetchKospiSnapshotForDate,
   fetchLatestKospiSnapshot,
+  fetchStockPriceByCode,
 } from "./data-go-kr-client";
 
 function mockResponse(totalCount: number, items: unknown[]) {
@@ -91,5 +92,47 @@ describe("fetchLatestKospiSnapshot", () => {
     await expect(
       fetchLatestKospiSnapshot(new Date("2026-07-08"), 2),
     ).rejects.toThrow();
+  });
+});
+
+describe("fetchStockPriceByCode", () => {
+  beforeEach(() => {
+    process.env.DATA_GO_KR_API_KEY = "test-key";
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("maps clpr/fltRt/mrktTotAmt to StockPrice", async () => {
+    global.fetch = vi.fn().mockResolvedValue(
+      mockResponse(1, [
+        {
+          srtnCd: "005930",
+          itmsNm: "삼성전자",
+          clpr: "277500",
+          fltRt: "-6.25",
+          mrktTotAmt: "1622342313720000",
+        },
+      ]),
+    );
+
+    const result = await fetchStockPriceByCode("005930", new Date("2026-07-08"));
+
+    expect(result).toEqual({
+      price: 277500,
+      changeRate: -6.25,
+      marketCap: 1622342313720000,
+    });
+  });
+
+  it("returns null when no matching stock is found within maxDaysBack", async () => {
+    global.fetch = vi.fn().mockResolvedValue(mockResponse(0, []));
+    const result = await fetchStockPriceByCode(
+      "999999",
+      new Date("2026-07-08"),
+      2,
+    );
+    expect(result).toBeNull();
   });
 });

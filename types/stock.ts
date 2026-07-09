@@ -4,6 +4,12 @@ export interface StockMasterEntry {
   corpCode: string;
 }
 
+export interface StockPrice {
+  price: number;
+  changeRate: number;
+  marketCap: number;
+}
+
 export interface StockFinancials {
   netIncome: number | null;
   totalAssets: number | null;

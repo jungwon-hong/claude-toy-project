@@ -7,6 +7,12 @@ export interface KospiSnapshotItem {
   marketCap: number;
 }
 
+export interface StockPriceResult {
+  price: number;
+  changeRate: number;
+  marketCap: number;
+}
+
 interface DataGoKrItem {
   srtnCd: string;
   itmsNm: string;
@@ -36,12 +42,17 @@ function apiKey(): string {
   return key;
 }
 
-async function fetchPage(basDt: string, pageNo: number, numOfRows: number) {
+async function fetchPage(
+  params: Record<string, string>,
+  pageNo: number,
+  numOfRows: number,
+) {
   const url = new URL(BASE_URL);
   url.searchParams.set("serviceKey", apiKey());
   url.searchParams.set("resultType", "json");
-  url.searchParams.set("mrktCls", "KOSPI");
-  url.searchParams.set("basDt", basDt);
+  for (const [key, value] of Object.entries(params)) {
+    url.searchParams.set(key, value);
+  }
   url.searchParams.set("pageNo", String(pageNo));
   url.searchParams.set("numOfRows", String(numOfRows));
 
@@ -60,14 +71,15 @@ async function fetchPage(basDt: string, pageNo: number, numOfRows: number) {
 export async function fetchKospiSnapshotForDate(
   basDt: string,
 ): Promise<KospiSnapshotItem[]> {
-  const first = await fetchPage(basDt, 1, 1000);
+  const params = { mrktCls: "KOSPI", basDt };
+  const first = await fetchPage(params, 1, 1000);
   if (!first || first.totalCount === 0) return [];
 
   const items = toArray(first.items?.item);
 
   let pageNo = 2;
   while (items.length < first.totalCount) {
-    const page = await fetchPage(basDt, pageNo, 1000);
+    const page = await fetchPage(params, pageNo, 1000);
     const pageItems = toArray(page?.items?.item);
     if (pageItems.length === 0) break;
     items.push(...pageItems);
@@ -106,4 +118,27 @@ export async function fetchLatestKospiSnapshot(
   throw new Error(
     `No KOSPI trading data found in the last ${maxDaysBack} days`,
   );
+}
+
+/** Looks up a single stock's latest price by its 6-character short code. */
+export async function fetchStockPriceByCode(
+  code: string,
+  from: Date = new Date(),
+  maxDaysBack = 10,
+): Promise<StockPriceResult | null> {
+  const cursor = new Date(from);
+  for (let i = 0; i < maxDaysBack; i += 1) {
+    const basDt = formatDate(cursor);
+    const page = await fetchPage({ likeSrtnCd: code, basDt }, 1, 1);
+    const item = toArray(page?.items?.item)[0];
+    if (item) {
+      return {
+        price: Number(item.clpr),
+        changeRate: Number(item.fltRt),
+        marketCap: Number(item.mrktTotAmt),
+      };
+    }
+    cursor.setDate(cursor.getDate() - 1);
+  }
+  return null;
 }
