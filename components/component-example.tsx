@@ -65,7 +65,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { PlusIcon, BluetoothIcon, MoreVerticalIcon, FileIcon, FolderIcon, FolderOpenIcon, FileCodeIcon, MoreHorizontalIcon, FolderSearchIcon, SaveIcon, DownloadIcon, EyeIcon, LayoutIcon, PaletteIcon, SunIcon, MoonIcon, MonitorIcon, UserIcon, CreditCardIcon, SettingsIcon, KeyboardIcon, LanguagesIcon, BellIcon, MailIcon, ShieldIcon, HelpCircleIcon, FileTextIcon, LogOutIcon } from "lucide-react"
+import { PlusIcon, BluetoothIcon, DotsThreeVerticalIcon, FileIcon, FolderIcon, FolderOpenIcon, FileCodeIcon, DotsThreeIcon, MagnifyingGlassIcon, FloppyDiskIcon, DownloadIcon, EyeIcon, LayoutIcon, PaletteIcon, SunIcon, MoonIcon, MonitorIcon, UserIcon, CreditCardIcon, GearIcon, KeyboardIcon, TranslateIcon, BellIcon, EnvelopeIcon, ShieldIcon, QuestionIcon, FileTextIcon, SignOutIcon } from "@phosphor-icons/react"
 
 export function ComponentExample() {
   return (
@@ -156,7 +156,7 @@ function FormExample() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon">
-                  <MoreVerticalIcon
+                  <DotsThreeVerticalIcon
                   />
                   <span className="sr-only">More options</span>
                 </Button>
@@ -198,7 +198,7 @@ function FormExample() {
                           </DropdownMenuItem>
                           <DropdownMenuSub>
                             <DropdownMenuSubTrigger>
-                              <MoreHorizontalIcon
+                              <DotsThreeIcon
                               />
                               More Projects
                             </DropdownMenuSubTrigger>
@@ -221,7 +221,7 @@ function FormExample() {
                         <DropdownMenuSeparator />
                         <DropdownMenuGroup>
                           <DropdownMenuItem>
-                            <FolderSearchIcon
+                            <MagnifyingGlassIcon
                             />
                             Browse...
                           </DropdownMenuItem>
@@ -231,7 +231,7 @@ function FormExample() {
                   </DropdownMenuSub>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem>
-                    <SaveIcon
+                    <FloppyDiskIcon
                     />
                     Save
                     <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
@@ -323,7 +323,7 @@ function FormExample() {
                   </DropdownMenuItem>
                   <DropdownMenuSub>
                     <DropdownMenuSubTrigger>
-                      <SettingsIcon
+                      <GearIcon
                       />
                       Settings
                     </DropdownMenuSubTrigger>
@@ -337,7 +337,7 @@ function FormExample() {
                             Keyboard Shortcuts
                           </DropdownMenuItem>
                           <DropdownMenuItem>
-                            <LanguagesIcon
+                            <TranslateIcon
                             />
                             Language
                           </DropdownMenuItem>
@@ -375,7 +375,7 @@ function FormExample() {
                                       })
                                     }
                                   >
-                                    <MailIcon
+                                    <EnvelopeIcon
                                     />
                                     Email Notifications
                                   </DropdownMenuCheckboxItem>
@@ -399,7 +399,7 @@ function FormExample() {
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
                   <DropdownMenuItem>
-                    <HelpCircleIcon
+                    <QuestionIcon
                     />
                     Help & Support
                   </DropdownMenuItem>
@@ -412,7 +412,7 @@ function FormExample() {
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
                   <DropdownMenuItem variant="destructive">
-                    <LogOutIcon
+                    <SignOutIcon
                     />
                     Sign Out
                     <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
