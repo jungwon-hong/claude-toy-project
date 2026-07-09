@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { evaluateGraham } from "./graham";
-import type { StockFinancials } from "@/types/stock";
+import { evaluateGraham, formatGrahamScore } from "./graham";
+import type { GrahamResult, StockFinancials } from "@/types/stock";
 
 function financials(overrides: Partial<StockFinancials>): StockFinancials {
   return {
@@ -72,5 +72,33 @@ describe("evaluateGraham", () => {
     expect(debtRatio?.status).toBe("unavailable");
     expect(debtRatio?.value).toBe("데이터 없음");
     expect(result.evaluableCount).toBe(3);
+  });
+});
+
+describe("formatGrahamScore", () => {
+  function result(overrides: Partial<GrahamResult>): GrahamResult {
+    return {
+      criteria: [
+        { key: "per", label: "", value: "", status: "pass" },
+        { key: "pbr", label: "", value: "", status: "pass" },
+        { key: "debtRatio", label: "", value: "", status: "pass" },
+        { key: "profitable", label: "", value: "", status: "pass" },
+      ],
+      satisfiedCount: 4,
+      evaluableCount: 4,
+      ...overrides,
+    };
+  }
+
+  it("formats as 'n/4 만족' when all 4 criteria were evaluable", () => {
+    expect(formatGrahamScore(result({ satisfiedCount: 3, evaluableCount: 4 }))).toBe(
+      "3/4 만족",
+    );
+  });
+
+  it("formats as 'm개 기준 중 n/m 만족' when one criterion is unavailable", () => {
+    expect(formatGrahamScore(result({ satisfiedCount: 2, evaluableCount: 3 }))).toBe(
+      "3개 기준 중 2/3 만족",
+    );
   });
 });

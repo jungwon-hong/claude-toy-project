@@ -74,4 +74,44 @@ describe("Watchlist", () => {
     expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
     expect(screen.getAllByText("삼성전자")).toHaveLength(1);
   });
+
+  it("clicking a watchlist row shows its Graham checklist detail with a back button", async () => {
+    global.fetch = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes("/price")) {
+        return {
+          ok: true,
+          json: async () => ({ price: 277500, changeRate: -6.25, marketCap: 1 }),
+        };
+      }
+      return {
+        ok: true,
+        json: async () => ({
+          criteria: [
+            { key: "per", label: "PER < 15", value: "PER 9.8", status: "pass" },
+          ],
+          satisfiedCount: 1,
+          evaluableCount: 1,
+        }),
+      };
+    }) as unknown as typeof fetch;
+
+    const user = userEvent.setup();
+    render(<Watchlist />);
+
+    const input = screen.getByPlaceholderText("종목명 입력 (코스피200)");
+    await user.type(input, "삼성전자");
+    await user.click(await screen.findByRole("option", { name: /삼성전자/ }));
+    await waitFor(() =>
+      expect(screen.getByText("1개 기준 중 1/1 만족")).toBeInTheDocument(),
+    );
+
+    await user.click(screen.getByText("삼성전자"));
+
+    expect(screen.getByText("그레이엄 체크리스트")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "뒤로가기" })).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "뒤로가기" }));
+    expect(screen.queryByText("그레이엄 체크리스트")).not.toBeInTheDocument();
+  });
 });

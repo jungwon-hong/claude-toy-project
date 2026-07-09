@@ -2,6 +2,7 @@ import {
   DEBT_RATIO_THRESHOLD,
   PBR_THRESHOLD,
   PER_THRESHOLD,
+  TOTAL_GRAHAM_CRITERIA,
 } from "@/config/graham";
 import type {
   GrahamCriterion,
@@ -93,4 +94,13 @@ export function evaluateGraham(
     satisfiedCount: criteria.filter((c) => c.status === "pass").length,
     evaluableCount: evaluable.length,
   };
+}
+
+/** "3/4 만족" when all criteria were evaluable, else "3개 기준 중 2/3 만족". */
+export function formatGrahamScore(result: GrahamResult): string {
+  const { satisfiedCount, evaluableCount } = result;
+  if (evaluableCount === TOTAL_GRAHAM_CRITERIA) {
+    return `${satisfiedCount}/${TOTAL_GRAHAM_CRITERIA} 만족`;
+  }
+  return `${evaluableCount}개 기준 중 ${satisfiedCount}/${evaluableCount} 만족`;
 }

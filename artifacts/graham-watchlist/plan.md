@@ -235,7 +235,7 @@
 
 ---
 
-### Task 8: 종목 상세 판정 화면
+### Task 8: 종목 상세 판정 화면 ✅
 
 - **담당 시나리오**: Scenario 4 (UI), Scenario 5 (UI), Scenario 6 (UI)
 - **크기**: M (3-5 파일)
@@ -244,14 +244,14 @@
   - wireframe.html의 "종목 상세 (모바일 전용)" 화면 및 워치리스트 화면 우측 패널
   - vercel-composition-patterns — 반응형 컴포넌트 구성
 - **구현 대상**:
-  - `hooks/use-stock-detail.ts` / `.test.ts` — 선택된 종목의 그레이엄 결과 fetch
+  - `lib/graham.ts`에 `formatGrahamScore(result): string` 추가 (spec 시나리오 6의 정확한 문구 재사용 — 워치리스트 행 배지에도 함께 적용)
   - `components/graham-watchlist/stock-detail.tsx` / `.test.tsx` — 4개 기준 통과/실패/데이터없음 렌더링 + 총점
-  - `components/graham-watchlist/watchlist.tsx` 수정 — 모바일: 행 클릭 시 전체화면 전환 / 데스크톱(`@md:` 이상): 우측 인라인 패널에 표시
+  - `components/graham-watchlist/watchlist.tsx` 수정 — 선택 상태를 `useState`로 직접 관리(별도 훅 불필요로 판단, `use-stock-detail.ts`는 만들지 않음 — Task 5의 교훈과 동일한 이유), 모바일: 행 클릭 시 전체화면 전환 / 데스크톱(`@md:` 이상): 우측 인라인 패널에 표시
 - **수용 기준**:
-  - [ ] 4개 기준 모두 만족하는 종목 상세 → "4/4 만족"과 4개 항목 모두 통과 아이콘이 나타난다
-  - [ ] 일부만 만족하는 종목 상세 → 실패한 기준만 실패 아이콘으로 구분되어 표시된다
-  - [ ] 최근 결산 적자 종목 상세 → PER 항목이 "N/A"로 표시된다
-  - [ ] 4개 중 1개 지표를 계산할 데이터가 없는 종목 상세 → 해당 기준이 "데이터 없음"으로 표시되고 총점이 spec.md 시나리오 6과 동일한 형식인 "3개 기준 중 n/3 만족"으로 표시된다
+  - [x] 4개 기준 모두 만족하는 종목 상세 → "4/4 만족"과 4개 항목 모두 통과 아이콘이 나타난다
+  - [x] 일부만 만족하는 종목 상세 → 실패한 기준만 실패 아이콘으로 구분되어 표시된다
+  - [x] 최근 결산 적자 종목 상세 → PER 항목이 "N/A"로 표시된다
+  - [x] 4개 중 1개 지표를 계산할 데이터가 없는 종목 상세 → 해당 기준이 "데이터 없음"으로 표시되고 총점이 spec.md 시나리오 6과 동일한 형식인 "3개 기준 중 n/3 만족"으로 표시된다
 - **검증**: `bun run test -- stock-detail`
 
 ---
