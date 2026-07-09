@@ -73,7 +73,6 @@
 | `types/stock.ts` | New | 1, 2, 3, 4 |
 | `config/graham.ts` | New | 2 |
 | `lib/graham.ts` / `.test.ts` | New | 2 |
-| `lib/stock-master.ts` / `.test.ts` | New | 5 |
 | `services/data-go-kr-client.ts` / `.test.ts` | New | 1, 3 |
 | `services/dart-client.ts` / `.test.ts` | New | 1, 4 |
 | `app/api/stocks/[code]/price/route.ts` / `.test.ts` | New | 3 |
@@ -183,8 +182,7 @@
 - **참조**:
   - shadcn — Combobox 컴포넌트 사용법 (`npx shadcn@latest docs combobox`)
 - **구현 대상**:
-  - `lib/stock-master.ts` / `.test.ts` — 마스터 리스트 로드 + 부분 일치 검색(최대 5개) 순수 함수
-  - `components/graham-watchlist/stock-search.tsx` / `.test.tsx` — shadcn `Combobox` 기반 검색 UI
+  - `components/graham-watchlist/stock-search.tsx` / `.test.tsx` — shadcn `Combobox` 기반 검색 UI. `items`/`itemToStringLabel`/`limit` prop으로 Base UI Combobox의 내장 필터(locale-aware contains 매칭)를 그대로 사용 — 별도의 `lib/stock-master.ts` 검색 함수는 불필요해 만들지 않음 (구현 중 발견, plan 원안에서 변경)
 - **수용 기준**:
   - [x] "삼성" 입력 → 자동완성 목록에 "삼성"을 포함하는 종목명이 최소 1개, 최대 5개 나타난다
   - [x] 마스터 리스트에 없는 문자열 입력 → "코스피200 내에서 일치하는 종목이 없습니다" 문구가 나타난다
@@ -192,7 +190,7 @@
 
 ---
 
-### Task 6: 워치리스트 추가 및 목록 표시
+### Task 6: 워치리스트 추가 및 목록 표시 ✅
 
 - **담당 시나리오**: Scenario 2 (전체), Scenario 8 (전체)
 - **크기**: M (3-5 파일)
@@ -205,9 +203,9 @@
   - `e2e/smoke.spec.ts`의 기대 타이틀을 새 값으로 갱신
   - `components/component-example.tsx`, `components/example.tsx` 삭제 (더 이상 사용되지 않음)
 - **수용 기준**:
-  - [ ] 자동완성에서 종목 선택 → 워치리스트에 종목명·현재가·등락률·"n/4 만족" 총점이 표시된다
-  - [ ] 워치리스트에 종목이 없는 상태 → "워치리스트가 비어 있습니다. 종목을 검색해 추가하세요" 문구가 표시된다
-  - [ ] 종목을 추가한 뒤 `localStorage`에 저장된 워치리스트 값을 직접 읽으면 각 항목이 `code`, `name` 필드만 갖고 있고 가격·재무 데이터는 포함되지 않는다
+  - [x] 자동완성에서 종목 선택 → 워치리스트에 종목명·현재가·등락률·"n/4 만족" 총점이 표시된다
+  - [x] 워치리스트에 종목이 없는 상태 → "워치리스트가 비어 있습니다. 종목을 검색해 추가하세요" 문구가 표시된다
+  - [x] 종목을 추가한 뒤 `localStorage`에 저장된 워치리스트 값을 직접 읽으면 각 항목이 `code`, `name` 필드만 갖고 있고 가격·재무 데이터는 포함되지 않는다
 - **검증**: `bun run test -- watchlist` / `bun run build`
 
 ---

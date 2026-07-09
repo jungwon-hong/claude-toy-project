@@ -9,8 +9,8 @@ const sourceSans3Heading = Source_Sans_3({subsets:['latin'],variable:'--font-hea
 const ibmPlexSans = IBM_Plex_Sans({subsets:['latin'],variable:'--font-sans'});
 
 export const metadata: Metadata = {
-  title: "Kanban Todo",
-  description: "Kanban board application",
+  title: "그레이엄 워치리스트",
+  description: "코스피200 종목을 그레이엄 기준으로 판정하는 개인 워치리스트",
 };
 
 export default function RootLayout({

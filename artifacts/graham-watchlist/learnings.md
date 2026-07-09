@@ -1,4 +1,14 @@
 ---
+category: refactor
+applied: not-yet
+---
+## shadcn Combobox는 items/itemToStringLabel/limit로 검색·개수제한을 자체 처리한다
+
+**상황**: Task 5, plan.md가 `lib/stock-master.ts`(부분 일치 검색 순수 함수)를 별도로 만들라고 했다. 만들고 컴포넌트에 연결하지 않은 채로 두었는데, 실제로는 `Combobox`(`@base-ui/react` 기반)에 `items`+`itemToStringLabel`+`limit` prop만 넘기면 locale-aware contains 매칭과 개수 제한을 라이브러리가 전부 처리했다.
+**판단**: 미사용 상태였던 `lib/stock-master.ts`와 그 테스트를 삭제. plan.md의 구현 대상·영향받는 파일 표를 갱신. 라이브러리가 이미 제공하는 기능을 직접 구현하기 전에 컴포넌트 API를 먼저 확인해야 했다.
+**다시 마주칠 가능성**: 높음 — shadcn/Base UI 계열 컴포넌트를 쓸 때 "직접 필터링 로직 작성"이 필요하다고 가정하기 전에 항상 컴포넌트가 이미 제공하는 prop을 먼저 확인해야 한다.
+
+---
 category: task-ordering
 applied: not-yet
 ---
