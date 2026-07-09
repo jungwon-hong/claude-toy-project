@@ -1,4 +1,34 @@
 ---
+category: code-review
+applied: not-yet
+---
+## localStorage를 읽는 훅을 추가하면 그 전까지 무해했던 테스트 간 상태 오염이 드러난다
+
+**상황**: Task 10, `useWatchlist`에 mount-time localStorage 복원을 추가하자 `watchlist.test.tsx`의 마지막 테스트("삭제")가 실패했다. 원인은 그 파일에 `window.localStorage.clear()`가 없어서, 앞선 테스트들이 실제 `localStorage`에 남긴 "삼성전자" 항목을 이 훅이 마운트 시점에 그대로 복원해버린 것 — 이전에는 훅이 localStorage를 읽지 않았으니 문제가 드러나지 않았을 뿐이었다.
+**판단**: `use-watchlist.test.ts`처럼 `beforeEach(() => window.localStorage.clear())`를 `watchlist.test.tsx`에도 추가.
+**다시 마주칠 가능성**: 높음 — 전역 브라우저 저장소(localStorage/sessionStorage/cookies)를 읽는 기능을 추가할 때마다, 그걸 쓰는 모든 테스트 파일에 정리 로직이 있는지 다시 점검해야 한다.
+
+---
+category: code-review
+applied: not-yet
+---
+## jsdom에서 Base UI Combobox 팝업이 닫히는 애니메이션 중 pointer-events:none이 남아 이후 상호작용을 막는다
+
+**상황**: Task 10 체크 중 `watchlist.test.tsx`에서 두 번째 검색·클릭 시퀀스가 "pointer-events: none" 에러로 실패. AlertDialog closed-state 때와 같은 원인(jsdom이 exit 애니메이션 종료 이벤트를 발생시키지 않아 오버레이가 그대로 남음).
+**판단**: 이 파일의 모든 `userEvent.setup()`을 `userEvent.setup({ pointerEventsCheck: 0 })`로 변경해 우회.
+**다시 마주칠 가능성**: 높음 — Base UI/Radix 기반의 애니메이션 있는 오버레이 컴포넌트(Combobox, Dialog, Popover 등)를 여러 번 여닫는 테스트에서 반복적으로 재발할 수 있다. 다음에는 처음부터 `pointerEventsCheck: 0`으로 설정하고 시작하는 게 나을 수 있음.
+
+---
+category: code-review
+applied: not-yet
+---
+## Base UI Combobox는 `value`를 초기화해도 입력창 텍스트는 안 지워진다
+
+**상황**: Task 10 체크 중, 두 번째 종목을 검색하는 테스트("SK하이닉스" 검색)가 옵션을 못 찾아 타임아웃. 실제로는 `StockSearch`가 선택 후 `value`만 `null`로 리셋했을 뿐 입력창에는 이전에 선택한 "삼성전자" 텍스트가 그대로 남아 있어서, 사용자가 이어서 입력한 글자가 그 뒤에 이어붙어 어떤 종목명과도 매칭되지 않았다. 실제 브라우저에서도 재현될 실제 버그였다.
+**판단**: `inputValue`/`onInputValueChange`를 별도로 controlled 상태로 두고, 선택 시 `setInputValue("")`도 같이 호출하도록 수정.
+**다시 마주칠 가능성**: 높음 — Base UI/Radix 계열 Combobox에서 "선택값(value)"과 "입력창 텍스트(inputValue)"는 별개의 controlled 상태라는 점을 항상 확인해야 한다.
+
+---
 category: refactor
 applied: not-yet
 ---

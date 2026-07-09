@@ -164,4 +164,28 @@ describe("useWatchlist", () => {
     const stored = JSON.parse(window.localStorage.getItem("graham-watchlist") ?? "[]");
     expect(stored).toEqual([{ code: "000660", name: "SK하이닉스" }]);
   });
+
+  it("restores previously-saved entries from localStorage on mount and fetches fresh data for them", async () => {
+    window.localStorage.setItem(
+      "graham-watchlist",
+      JSON.stringify([{ code: "005930", name: "삼성전자" }]),
+    );
+
+    global.fetch = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes("/price")) {
+        return mockFetchOnce(url, { price: 300000, changeRate: 2, marketCap: 1 });
+      }
+      return mockFetchOnce(url, { criteria: [], satisfiedCount: 4, evaluableCount: 4 });
+    }) as unknown as typeof fetch;
+
+    const { result } = renderHook(() => useWatchlist());
+
+    expect(result.current.items).toHaveLength(1);
+    expect(result.current.items[0].name).toBe("삼성전자");
+
+    await waitFor(() => {
+      expect(result.current.items[0].price?.price).toBe(300000);
+    });
+  });
 });

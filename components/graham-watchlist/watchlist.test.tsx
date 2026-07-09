@@ -1,9 +1,13 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Watchlist } from "./watchlist";
 
 describe("Watchlist", () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+  });
+
   it("shows the empty-state message when there are no stocks", () => {
     render(<Watchlist />);
     expect(
@@ -26,7 +30,7 @@ describe("Watchlist", () => {
       };
     }) as unknown as typeof fetch;
 
-    const user = userEvent.setup();
+    const user = userEvent.setup({ pointerEventsCheck: 0 });
     render(<Watchlist />);
 
     const input = screen.getByPlaceholderText("종목명 입력 (코스피200)");
@@ -56,7 +60,7 @@ describe("Watchlist", () => {
       };
     }) as unknown as typeof fetch;
 
-    const user = userEvent.setup();
+    const user = userEvent.setup({ pointerEventsCheck: 0 });
     render(<Watchlist />);
 
     const input = screen.getByPlaceholderText("종목명 입력 (코스피200)");
@@ -96,7 +100,7 @@ describe("Watchlist", () => {
       };
     }) as unknown as typeof fetch;
 
-    const user = userEvent.setup();
+    const user = userEvent.setup({ pointerEventsCheck: 0 });
     render(<Watchlist />);
 
     const input = screen.getByPlaceholderText("종목명 입력 (코스피200)");
@@ -113,5 +117,38 @@ describe("Watchlist", () => {
 
     await user.click(screen.getByRole("button", { name: "뒤로가기" }));
     expect(screen.queryByText("그레이엄 체크리스트")).not.toBeInTheDocument();
+  });
+
+  it("deleting a stock removes its row while leaving other stocks in place", async () => {
+    global.fetch = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes("/price")) {
+        return {
+          ok: true,
+          json: async () => ({ price: 100, changeRate: 1, marketCap: 1 }),
+        };
+      }
+      return {
+        ok: true,
+        json: async () => ({ criteria: [], satisfiedCount: 1, evaluableCount: 4 }),
+      };
+    }) as unknown as typeof fetch;
+
+    const user = userEvent.setup({ pointerEventsCheck: 0 });
+    render(<Watchlist />);
+
+    const input = screen.getByPlaceholderText("종목명 입력 (코스피200)");
+    await user.type(input, "삼성전자");
+    await user.click(await screen.findByRole("option", { name: /삼성전자/ }));
+    await user.type(input, "SK하이닉스");
+    await user.click(await screen.findByRole("option", { name: /SK하이닉스/ }));
+
+    await waitFor(() => expect(screen.getByText("삼성전자")).toBeInTheDocument());
+    expect(screen.getByText("SK하이닉스")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "삼성전자 삭제" }));
+
+    expect(screen.queryByText("삼성전자")).not.toBeInTheDocument();
+    expect(screen.getByText("SK하이닉스")).toBeInTheDocument();
   });
 });

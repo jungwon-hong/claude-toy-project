@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { GrahamResult, StockPrice } from "@/types/stock";
 
 const STORAGE_KEY = "graham-watchlist";
@@ -21,6 +21,16 @@ function writeStoredEntries(entries: WatchlistEntry[]) {
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
 }
 
+function readStoredEntries(): WatchlistEntry[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    return raw ? (JSON.parse(raw) as WatchlistEntry[]) : [];
+  } catch {
+    return [];
+  }
+}
+
 function toEntries(items: WatchlistItem[]): WatchlistEntry[] {
   return items.map(({ code, name }) => ({ code, name }));
 }
@@ -39,7 +49,14 @@ async function fetchStockData(
 }
 
 export function useWatchlist() {
-  const [items, setItems] = useState<WatchlistItem[]>([]);
+  const [items, setItems] = useState<WatchlistItem[]>(() =>
+    readStoredEntries().map((entry) => ({
+      ...entry,
+      status: "loading",
+      price: null,
+      graham: null,
+    })),
+  );
   const [pendingDuplicate, setPendingDuplicate] = useState<WatchlistEntry | null>(
     null,
   );
@@ -55,6 +72,13 @@ export function useWatchlist() {
         ),
       );
     });
+  }, []);
+
+  // Restore-on-mount: refetch fresh price/graham data for whatever was
+  // persisted from a previous visit. Runs once, over the initial items only.
+  useEffect(() => {
+    items.forEach((item) => refetchStock(item.code));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const addStock = useCallback(

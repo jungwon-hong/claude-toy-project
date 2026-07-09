@@ -20,6 +20,7 @@ interface StockSearchProps {
 
 export function StockSearch({ onSelect }: StockSearchProps) {
   const [value, setValue] = useState<StockMasterEntry | null>(null);
+  const [inputValue, setInputValue] = useState("");
 
   return (
     <Combobox
@@ -27,10 +28,13 @@ export function StockSearch({ onSelect }: StockSearchProps) {
       itemToStringLabel={(item: StockMasterEntry) => item.name}
       limit={5}
       value={value}
+      inputValue={inputValue}
+      onInputValueChange={setInputValue}
       onValueChange={(item: StockMasterEntry | null) => {
         if (item) {
           onSelect(item);
           setValue(null);
+          setInputValue("");
         }
       }}
     >
