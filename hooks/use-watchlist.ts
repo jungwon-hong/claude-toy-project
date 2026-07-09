@@ -40,6 +40,9 @@ async function fetchStockData(
 
 export function useWatchlist() {
   const [items, setItems] = useState<WatchlistItem[]>([]);
+  const [pendingDuplicate, setPendingDuplicate] = useState<WatchlistEntry | null>(
+    null,
+  );
 
   const refetchStock = useCallback((code: string) => {
     setItems((prev) =>
@@ -56,8 +59,12 @@ export function useWatchlist() {
 
   const addStock = useCallback(
     (entry: WatchlistEntry) => {
+      if (items.some((i) => i.code === entry.code)) {
+        setPendingDuplicate(entry);
+        return;
+      }
+
       setItems((prev) => {
-        if (prev.some((i) => i.code === entry.code)) return prev;
         const next: WatchlistItem[] = [
           ...prev,
           { ...entry, status: "loading", price: null, graham: null },
@@ -75,11 +82,30 @@ export function useWatchlist() {
         );
       });
     },
-    [],
+    [items],
   );
+
+  const confirmDuplicate = useCallback(() => {
+    if (pendingDuplicate) {
+      refetchStock(pendingDuplicate.code);
+      setPendingDuplicate(null);
+    }
+  }, [pendingDuplicate, refetchStock]);
+
+  const cancelDuplicate = useCallback(() => {
+    setPendingDuplicate(null);
+  }, []);
 
   // Completed in Task 9 (delete) and Task 10 (mount-time restore/refetch).
   const removeStock = useCallback((_code: string) => {}, []);
 
-  return { items, addStock, removeStock, refetchStock };
+  return {
+    items,
+    addStock,
+    removeStock,
+    refetchStock,
+    pendingDuplicate,
+    confirmDuplicate,
+    cancelDuplicate,
+  };
 }

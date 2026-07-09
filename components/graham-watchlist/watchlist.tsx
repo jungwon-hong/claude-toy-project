@@ -4,14 +4,27 @@ import { TrashIcon } from "@phosphor-icons/react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useWatchlist } from "@/hooks/use-watchlist";
+import { DuplicateDialog } from "./duplicate-dialog";
 import { StockSearch } from "./stock-search";
 
 export function Watchlist() {
-  const { items, addStock, removeStock } = useWatchlist();
+  const {
+    items,
+    addStock,
+    removeStock,
+    pendingDuplicate,
+    confirmDuplicate,
+    cancelDuplicate,
+  } = useWatchlist();
 
   return (
     <div className="flex flex-col gap-4">
       <StockSearch onSelect={addStock} />
+      <DuplicateDialog
+        stockName={pendingDuplicate?.name ?? null}
+        onConfirm={confirmDuplicate}
+        onCancel={cancelDuplicate}
+      />
 
       {items.length === 0 ? (
         <p className="text-sm text-muted-foreground">

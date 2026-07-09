@@ -66,4 +66,78 @@ describe("useWatchlist", () => {
     const { result } = renderHook(() => useWatchlist());
     expect(result.current.items).toEqual([]);
   });
+
+  it("flags a pending duplicate instead of adding a second item for the same code", async () => {
+    global.fetch = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes("/price")) {
+        return mockFetchOnce(url, { price: 100, changeRate: 1, marketCap: 1 });
+      }
+      return mockFetchOnce(url, { criteria: [], satisfiedCount: 1, evaluableCount: 4 });
+    }) as unknown as typeof fetch;
+
+    const { result } = renderHook(() => useWatchlist());
+
+    act(() => {
+      result.current.addStock({ code: "005930", name: "삼성전자" });
+    });
+    await waitFor(() => expect(result.current.items).toHaveLength(1));
+
+    act(() => {
+      result.current.addStock({ code: "005930", name: "삼성전자" });
+    });
+
+    expect(result.current.items).toHaveLength(1);
+    expect(result.current.pendingDuplicate).toEqual({
+      code: "005930",
+      name: "삼성전자",
+    });
+  });
+
+  it("confirmDuplicate refetches the stock and clears the pending state", async () => {
+    let priceCallCount = 0;
+    global.fetch = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes("/price")) {
+        priceCallCount += 1;
+        return mockFetchOnce(url, { price: priceCallCount, changeRate: 1, marketCap: 1 });
+      }
+      return mockFetchOnce(url, { criteria: [], satisfiedCount: 1, evaluableCount: 4 });
+    }) as unknown as typeof fetch;
+
+    const { result } = renderHook(() => useWatchlist());
+
+    act(() => result.current.addStock({ code: "005930", name: "삼성전자" }));
+    await waitFor(() => expect(result.current.items[0].price?.price).toBe(1));
+
+    act(() => result.current.addStock({ code: "005930", name: "삼성전자" }));
+    expect(result.current.pendingDuplicate).not.toBeNull();
+
+    act(() => result.current.confirmDuplicate());
+
+    await waitFor(() => expect(result.current.items[0].price?.price).toBe(2));
+    expect(result.current.pendingDuplicate).toBeNull();
+    expect(result.current.items).toHaveLength(1);
+  });
+
+  it("cancelDuplicate clears the pending state without changing the watchlist", async () => {
+    global.fetch = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes("/price")) {
+        return mockFetchOnce(url, { price: 100, changeRate: 1, marketCap: 1 });
+      }
+      return mockFetchOnce(url, { criteria: [], satisfiedCount: 1, evaluableCount: 4 });
+    }) as unknown as typeof fetch;
+
+    const { result } = renderHook(() => useWatchlist());
+
+    act(() => result.current.addStock({ code: "005930", name: "삼성전자" }));
+    await waitFor(() => expect(result.current.items).toHaveLength(1));
+
+    act(() => result.current.addStock({ code: "005930", name: "삼성전자" }));
+    act(() => result.current.cancelDuplicate());
+
+    expect(result.current.pendingDuplicate).toBeNull();
+    expect(result.current.items).toHaveLength(1);
+  });
 });

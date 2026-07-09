@@ -40,4 +40,38 @@ describe("Watchlist", () => {
     });
     expect(screen.getByText(/277,500원/)).toBeInTheDocument();
   });
+
+  it("selecting an already-added stock shows a confirm dialog instead of duplicating the row", async () => {
+    global.fetch = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes("/price")) {
+        return {
+          ok: true,
+          json: async () => ({ price: 277500, changeRate: -6.25, marketCap: 1 }),
+        };
+      }
+      return {
+        ok: true,
+        json: async () => ({ criteria: [], satisfiedCount: 4, evaluableCount: 4 }),
+      };
+    }) as unknown as typeof fetch;
+
+    const user = userEvent.setup();
+    render(<Watchlist />);
+
+    const input = screen.getByPlaceholderText("종목명 입력 (코스피200)");
+    await user.type(input, "삼성전자");
+    await user.click(await screen.findByRole("option", { name: /삼성전자/ }));
+    await waitFor(() => expect(screen.getByText("4/4 만족")).toBeInTheDocument());
+
+    await user.type(input, "삼성전자");
+    await user.click(await screen.findByRole("option", { name: /삼성전자/ }));
+
+    expect(await screen.findByRole("alertdialog")).toBeInTheDocument();
+    expect(screen.getAllByText("삼성전자")).toHaveLength(1);
+
+    await user.click(screen.getByRole("button", { name: "취소" }));
+    expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
+    expect(screen.getAllByText("삼성전자")).toHaveLength(1);
+  });
 });
