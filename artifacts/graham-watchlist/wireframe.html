@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wireframe: graham-watchlist</title>
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  :root {
+    --w-bg: #f5f5f5;
+    --w-border: #ccc;
+    --w-text: #555;
+    --w-muted: #aaa;
+    --w-fill: #eee;
+  }
+
+  * {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    color: var(--w-text);
+  }
+
+  body { background: var(--w-bg); }
+
+  /* Screen nav */
+  nav { position: sticky; top: 0; z-index: 40; background: var(--w-bg); border-bottom: 1px solid var(--w-border); }
+  nav button { cursor: pointer; font-size: 13px; }
+  nav button:hover { background: var(--w-fill); border-radius: 4px; }
+  nav button.active { font-weight: bold; border-bottom: 2px solid var(--w-text); }
+
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* Viewport toggle */
+  .vp-toggle button {
+    font-size: 12px; padding: 2px 8px;
+    border: 1px solid var(--w-border); cursor: pointer; background: white;
+  }
+  .vp-toggle button:first-child { border-radius: 4px 0 0 4px; }
+  .vp-toggle button:last-child { border-radius: 0 4px 4px 0; border-left: none; }
+  .vp-toggle button.active { background: var(--w-text); color: white; }
+
+  /* Mobile viewport frame */
+  body.viewport-mobile .screen-content {
+    max-width: 375px !important;
+    margin: 24px auto !important;
+    border: 2px solid var(--w-border);
+    border-radius: 24px;
+    min-height: 667px;
+    background: white;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    padding: 32px 16px !important;
+  }
+
+  /* Screen Notes */
+  .screen-notes {
+    background: #fffde7;
+    border-left: 3px solid #ffd54f;
+    padding: 12px 16px;
+    margin-top: 24px;
+    font-size: 13px;
+    border-radius: 0 4px 4px 0;
+  }
+  .screen-notes summary {
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 12px;
+    color: #b0a050;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .screen-notes p { margin: 6px 0 2px; color: #777; }
+  .screen-notes ul { margin: 4px 0 0 16px; padding: 0; color: #777; }
+  .screen-notes li { margin: 2px 0; }
+
+  /* Custom wireframe helpers */
+  .w-row { border: 1px solid var(--w-border); border-radius: 6px; background: white; }
+  .w-score-pass { color: var(--w-text); }
+  .w-score-fail { color: var(--w-muted); text-decoration: line-through; }
+  .w-dropdown { border: 1px solid var(--w-border); background: white; border-radius: 6px; }
+  .w-modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.25); display: flex; align-items: center; justify-content: center; z-index: 50; }
+  .w-modal { background: white; border: 1px solid var(--w-border); border-radius: 8px; padding: 20px; max-width: 300px; }
+</style>
+</head>
+<body class="p-0 m-0 viewport-mobile">
+
+<nav class="flex items-center gap-4 px-6 py-2">
+  <span class="text-xs" style="color:var(--w-muted)">wireframe</span>
+  <button id="nav-0" onclick="show(0)" class="px-2 py-1">워치리스트</button>
+  <button id="nav-1" onclick="show(1)" class="px-2 py-1">종목 상세 (모바일 전용)</button>
+  <button id="nav-2" onclick="show(2)" class="px-2 py-1">검색 결과 없음</button>
+  <button id="nav-3" onclick="show(3)" class="px-2 py-1">중복 추가 팝업</button>
+  <button id="nav-4" onclick="show(4)" class="px-2 py-1">빈 워치리스트</button>
+  <button id="nav-5" onclick="show(5)" class="px-2 py-1">상세-부분 만족</button>
+  <button id="nav-6" onclick="show(6)" class="px-2 py-1">상세-적자 종목</button>
+  <button id="nav-7" onclick="show(7)" class="px-2 py-1">상세-데이터 누락</button>
+  <div class="vp-toggle flex ml-auto">
+    <button id="vp-desktop" onclick="setViewport('desktop')">Desktop</button>
+    <button id="vp-mobile" onclick="setViewport('mobile')" class="active">Mobile</button>
+  </div>
+</nav>
+
+<div id="screen-0" class="screen" data-scenario="scenario-1, scenario-2, scenario-7">
+  <div class="screen-content @container max-w-5xl mx-auto p-6">
+
+    <h2 class="text-lg font-bold mb-5" style="color:var(--w-muted); border-bottom:1px solid var(--w-border); padding-bottom:8px;">
+      워치리스트
+    </h2>
+
+    <div class="flex flex-col @md:flex-row gap-6">
+
+      <!-- Left: search + list -->
+      <div class="@md:w-2/5 @md:shrink-0">
+        <!-- Search + autocomplete -->
+        <div class="relative mb-4">
+          <div class="flex items-center gap-2 border rounded-lg px-3 py-2" style="border-color:var(--w-border); background:white;">
+            <i data-lucide="search" class="w-4 h-4" style="color:var(--w-muted)"></i>
+            <input type="text" value="삼성" placeholder="종목명 입력 (코스피200)" class="flex-1 text-sm outline-none" style="color:var(--w-text)" onfocus="document.getElementById('autocomplete-dropdown').style.display='block'">
+            <i data-lucide="x" class="w-4 h-4 cursor-pointer" style="color:var(--w-muted)" onclick="document.getElementById('autocomplete-dropdown').style.display='none'"></i>
+          </div>
+          <div class="text-xs mt-1" style="color:var(--w-muted)">(입력창 클릭 → 자동완성 표시 / X 아이콘 클릭 → 자동완성 닫기)</div>
+
+          <div id="autocomplete-dropdown" class="w-dropdown absolute left-0 right-0 mt-1 overflow-hidden" style="display:none;">
+            <div class="px-3 py-2 text-sm hover:bg-gray-50 border-b" style="border-color:var(--w-border)">삼성전자</div>
+            <div class="px-3 py-2 text-sm hover:bg-gray-50 border-b" style="border-color:var(--w-border)">삼성SDI</div>
+            <div class="px-3 py-2 text-sm hover:bg-gray-50 border-b" style="border-color:var(--w-border)">삼성물산</div>
+            <div class="px-3 py-2 text-sm hover:bg-gray-50 border-b" style="border-color:var(--w-border)">삼성바이오로직스</div>
+            <div class="px-3 py-2 text-sm hover:bg-gray-50">삼성전기</div>
+          </div>
+        </div>
+
+        <!-- Watchlist rows -->
+        <div class="flex flex-col gap-2">
+          <div id="row-samsung" class="w-row flex items-center justify-between px-4 py-3 cursor-pointer" onclick="selectStock(event, 'samsung')" style="border-color: var(--w-text);">
+            <div>
+              <div class="text-sm font-bold">삼성전자</div>
+              <div class="text-xs" style="color:var(--w-muted)">277,500원 <span style="color:var(--w-text)">-6.25%</span></div>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="text-sm font-bold">4/4 만족</div>
+              <i data-lucide="trash-2" class="w-4 h-4" style="color:var(--w-muted)" onclick="event.stopPropagation()"></i>
+            </div>
+          </div>
+
+          <div id="row-kai" class="w-row flex items-center justify-between px-4 py-3 cursor-pointer" onclick="selectStock(event, 'kai')">
+            <div>
+              <div class="text-sm font-bold">한국항공우주</div>
+              <div class="text-xs" style="color:var(--w-muted)">58,200원 <span style="color:var(--w-text)">+1.20%</span></div>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="text-sm font-bold">2/4 만족</div>
+              <i data-lucide="trash-2" class="w-4 h-4" style="color:var(--w-muted)" onclick="event.stopPropagation()"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: inline detail panel (desktop only) -->
+      <div class="hidden @md:block @md:flex-1 @md:border-l @md:pl-6" style="border-color: var(--w-border);">
+        <div class="text-sm mb-3" style="color:var(--w-muted)">선택된 종목 상세 (같은 화면 안에서 갱신, 전환 없음)</div>
+        <div class="text-xl font-bold mb-1">삼성전자 · 277,500원</div>
+        <div class="text-sm mb-4" style="color:var(--w-muted)">전일 대비 -6.25%</div>
+
+        <div class="w-row px-4 py-3 mb-3">
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-bold">그레이엄 체크리스트</span>
+            <span class="text-sm font-bold">4/4 만족</span>
+          </div>
+        </div>
+        <div class="flex flex-col gap-2">
+          <div class="w-row flex items-center justify-between px-4 py-3">
+            <div class="text-sm">PER &lt; 15</div>
+            <div class="flex items-center gap-2"><span class="text-sm w-score-pass">PER 9.8</span><i data-lucide="check" class="w-4 h-4"></i></div>
+          </div>
+          <div class="w-row flex items-center justify-between px-4 py-3">
+            <div class="text-sm">PBR &lt; 1.5</div>
+            <div class="flex items-center gap-2"><span class="text-sm w-score-pass">PBR 1.1</span><i data-lucide="check" class="w-4 h-4"></i></div>
+          </div>
+          <div class="w-row flex items-center justify-between px-4 py-3">
+            <div class="text-sm">부채비율 &lt; 100%</div>
+            <div class="flex items-center gap-2"><span class="text-sm w-score-pass">42%</span><i data-lucide="check" class="w-4 h-4"></i></div>
+          </div>
+          <div class="w-row flex items-center justify-between px-4 py-3">
+            <div class="text-sm">최근 결산 순이익 흑자</div>
+            <div class="flex items-center gap-2"><span class="text-sm w-score-pass">흑자</span><i data-lucide="check" class="w-4 h-4"></i></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="screen-notes">
+      <details open>
+        <summary>Notes</summary>
+        <p>워치리스트 메인 화면. 검색·자동완성·목록·삭제를 한 화면에서 처리한다.</p>
+        <ul>
+          <li>트리거: 앱 진입 시 기본 화면</li>
+          <li>인터랙션: 검색창에 입력 → 자동완성 드롭다운 표시 / 항목 선택 → 워치리스트에 추가 / 휴지통 아이콘 클릭 → 해당 행 삭제</li>
+          <li>모바일: 행 클릭 → "종목 상세" 화면으로 전환 (전체화면)</li>
+          <li>데스크톱(공간이 넓을 때): 화면 전환 없이 우측에 상세 패널이 함께 보이고, 행 클릭 시 우측 패널 내용만 바뀐다 — 남는 공간을 활용해 리스트+상세를 한 화면에서 같이 볼 수 있게 한다</li>
+        </ul>
+      </details>
+    </div>
+
+  </div>
+</div>
+
+<div id="screen-1" class="screen" data-scenario="scenario-4">
+  <div class="screen-content @container max-w-3xl mx-auto p-6">
+
+    <div class="flex items-center gap-2 mb-5" style="border-bottom:1px solid var(--w-border); padding-bottom:8px;">
+      <i data-lucide="arrow-left" class="w-4 h-4 cursor-pointer" onclick="show(0)"></i>
+      <h2 class="text-lg font-bold" style="color:var(--w-muted)">삼성전자</h2>
+    </div>
+
+    <div class="mb-5">
+      <div class="text-2xl font-bold">277,500원</div>
+      <div class="text-sm" style="color:var(--w-muted)">전일 대비 -6.25%</div>
+    </div>
+
+    <div class="w-row px-4 py-3 mb-4">
+      <div class="flex items-center justify-between">
+        <span class="text-sm font-bold">그레이엄 체크리스트</span>
+        <span class="text-sm font-bold">4/4 만족</span>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <div class="w-row flex items-center justify-between px-4 py-3">
+        <div class="text-sm">PER &lt; 15</div>
+        <div class="flex items-center gap-2">
+          <span class="text-sm w-score-pass">PER 9.8</span>
+          <i data-lucide="check" class="w-4 h-4"></i>
+        </div>
+      </div>
+      <div class="w-row flex items-center justify-between px-4 py-3">
+        <div class="text-sm">PBR &lt; 1.5</div>
+        <div class="flex items-center gap-2">
+          <span class="text-sm w-score-pass">PBR 1.1</span>
+          <i data-lucide="check" class="w-4 h-4"></i>
+        </div>
+      </div>
+      <div class="w-row flex items-center justify-between px-4 py-3">
+        <div class="text-sm">부채비율 &lt; 100%</div>
+        <div class="flex items-center gap-2">
+          <span class="text-sm w-score-pass">42%</span>
+          <i data-lucide="check" class="w-4 h-4"></i>
+        </div>
+      </div>
+      <div class="w-row flex items-center justify-between px-4 py-3">
+        <div class="text-sm">최근 결산 순이익 흑자</div>
+        <div class="flex items-center gap-2">
+          <span class="text-sm w-score-pass">흑자</span>
+          <i data-lucide="check" class="w-4 h-4"></i>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen-notes">
+      <details open>
+        <summary>Notes</summary>
+        <p>종목 상세 화면 (모바일 전용). 데스크톱에서는 워치리스트 화면 우측 패널로 대체되어 이 화면으로 전환되지 않는다.</p>
+        <ul>
+          <li>트리거: 모바일에서 워치리스트 목록의 종목 행 클릭</li>
+          <li>인터랙션: 뒤로가기 아이콘 클릭 시 워치리스트로 복귀</li>
+          <li>전환: 뒤로가기 → 워치리스트 화면</li>
+        </ul>
+      </details>
+    </div>
+
+  </div>
+</div>
+
+<div id="screen-2" class="screen" data-scenario="scenario-1">
+  <div class="screen-content @container max-w-3xl mx-auto p-6">
+
+    <h2 class="text-lg font-bold mb-5" style="color:var(--w-muted); border-bottom:1px solid var(--w-border); padding-bottom:8px;">
+      워치리스트 — 검색 결과 없음
+    </h2>
+
+    <div class="relative mb-4">
+      <div class="flex items-center gap-2 border rounded-lg px-3 py-2" style="border-color:var(--w-border); background:white;">
+        <i data-lucide="search" class="w-4 h-4" style="color:var(--w-muted)"></i>
+        <input type="text" value="존재하지않는종목" class="flex-1 text-sm outline-none" style="color:var(--w-text)">
+        <i data-lucide="x" class="w-4 h-4" style="color:var(--w-muted)"></i>
+      </div>
+
+      <div class="w-dropdown absolute left-0 right-0 mt-1 px-3 py-3">
+        <div class="text-sm text-center" style="color:var(--w-muted)">코스피200 내에서 일치하는 종목이 없습니다</div>
+      </div>
+    </div>
+
+    <div class="screen-notes">
+      <details open>
+        <summary>Notes</summary>
+        <p>코스피200 마스터 리스트에 없는 문자열을 입력한 경우.</p>
+        <ul>
+          <li>트리거: 자동완성 대상에 없는 문자열 입력</li>
+          <li>인터랙션: 안내 문구만 표시, 선택 가능한 항목 없음</li>
+        </ul>
+      </details>
+    </div>
+
+  </div>
+</div>
+
+<div id="screen-3" class="screen" data-scenario="scenario-3">
+  <div class="screen-content @container max-w-3xl mx-auto p-6" style="position: relative;">
+
+    <h2 class="text-lg font-bold mb-5" style="color:var(--w-muted); border-bottom:1px solid var(--w-border); padding-bottom:8px;">
+      워치리스트 — 중복 추가 확인
+    </h2>
+
+    <div class="flex flex-col gap-2" style="opacity: 0.4;">
+      <div class="w-row flex items-center justify-between px-4 py-3">
+        <div>
+          <div class="text-sm font-bold">삼성전자</div>
+          <div class="text-xs" style="color:var(--w-muted)">277,500원 -6.25%</div>
+        </div>
+        <div class="text-sm font-bold">4/4 만족</div>
+      </div>
+    </div>
+
+    <div class="w-modal-backdrop">
+      <div class="w-modal">
+        <div class="text-sm font-bold mb-2">이미 워치리스트에 있습니다</div>
+        <div class="text-sm mb-4" style="color:var(--w-muted)">최신 데이터로 새로고침할까요?</div>
+        <div class="flex justify-end gap-2">
+          <button class="text-sm px-3 py-1 border rounded" style="border-color:var(--w-border)">취소</button>
+          <button class="text-sm px-3 py-1 border rounded" style="border-color:var(--w-text); font-weight:bold;">확인</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen-notes">
+      <details open>
+        <summary>Notes</summary>
+        <p>이미 워치리스트에 있는 종목을 자동완성에서 다시 선택한 경우.</p>
+        <ul>
+          <li>트리거: 자동완성에서 이미 추가된 종목 선택</li>
+          <li>인터랙션: "확인" → 시세·재무데이터 재조회 후 갱신 / "취소" → 팝업만 닫히고 변화 없음</li>
+        </ul>
+      </details>
+    </div>
+
+  </div>
+</div>
+
+<div id="screen-4" class="screen" data-scenario="scenario-8">
+  <div class="screen-content @container max-w-3xl mx-auto p-6">
+
+    <h2 class="text-lg font-bold mb-5" style="color:var(--w-muted); border-bottom:1px solid var(--w-border); padding-bottom:8px;">
+      워치리스트 — 빈 상태
+    </h2>
+
+    <div class="relative mb-4">
+      <div class="flex items-center gap-2 border rounded-lg px-3 py-2" style="border-color:var(--w-border); background:white;">
+        <i data-lucide="search" class="w-4 h-4" style="color:var(--w-muted)"></i>
+        <input type="text" placeholder="종목명 입력 (코스피200)" class="flex-1 text-sm outline-none">
+      </div>
+    </div>
+
+    <div class="w-row flex items-center justify-center px-4 py-10 text-center">
+      <div class="text-sm" style="color:var(--w-muted)">워치리스트가 비어 있습니다.<br>종목을 검색해 추가하세요</div>
+    </div>
+
+    <div class="screen-notes">
+      <details open>
+        <summary>Notes</summary>
+        <p>최초 방문 또는 워치리스트의 모든 종목을 삭제한 뒤의 상태.</p>
+        <ul>
+          <li>트리거: 워치리스트에 종목이 0개일 때</li>
+          <li>인터랙션: 안내 문구만 표시, 목록 영역에는 행이 없음</li>
+        </ul>
+      </details>
+    </div>
+
+  </div>
+</div>
+
+<div id="screen-5" class="screen" data-scenario="scenario-4">
+  <div class="screen-content @container max-w-3xl mx-auto p-6">
+
+    <div class="flex items-center gap-2 mb-5" style="border-bottom:1px solid var(--w-border); padding-bottom:8px;">
+      <i data-lucide="arrow-left" class="w-4 h-4"></i>
+      <h2 class="text-lg font-bold" style="color:var(--w-muted)">한국항공우주</h2>
+    </div>
+
+    <div class="mb-5">
+      <div class="text-2xl font-bold">58,200원</div>
+      <div class="text-sm" style="color:var(--w-muted)">전일 대비 +1.20%</div>
+    </div>
+
+    <div class="w-row px-4 py-3 mb-4">
+      <div class="flex items-center justify-between">
+        <span class="text-sm font-bold">그레이엄 체크리스트</span>
+        <span class="text-sm font-bold">2/4 만족</span>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <div class="w-row flex items-center justify-between px-4 py-3">
+        <div class="text-sm">PER &lt; 15</div>
+        <div class="flex items-center gap-2"><span class="text-sm w-score-fail">PER 18.4</span><i data-lucide="x" class="w-4 h-4"></i></div>
+      </div>
+      <div class="w-row flex items-center justify-between px-4 py-3">
+        <div class="text-sm">PBR &lt; 1.5</div>
+        <div class="flex items-center gap-2"><span class="text-sm w-score-pass">PBR 0.9</span><i data-lucide="check" class="w-4 h-4"></i></div>
+      </div>
+      <div class="w-row flex items-center justify-between px-4 py-3">
+        <div class="text-sm">부채비율 &lt; 100%</div>
+        <div class="flex items-center gap-2"><span class="text-sm w-score-fail">128%</span><i data-lucide="x" class="w-4 h-4"></i></div>
+      </div>
+      <div class="w-row flex items-center justify-between px-4 py-3">
+        <div class="text-sm">최근 결산 순이익 흑자</div>
+        <div class="flex items-center gap-2"><span class="text-sm w-score-pass">흑자</span><i data-lucide="check" class="w-4 h-4"></i></div>
+      </div>
+    </div>
+
+    <div class="screen-notes">
+      <details open>
+        <summary>Notes</summary>
+        <p>4개 기준 중 일부만 만족하는 종목의 상세 화면.</p>
+        <ul>
+          <li>트리거: 4개 기준 중 일부만 통과한 종목의 상세 진입</li>
+          <li>인터랙션: 통과 항목은 체크 아이콘, 실패 항목은 X 아이콘 + 취소선 스타일로 구분</li>
+        </ul>
+      </details>
+    </div>
+
+  </div>
+</div>
+
+<div id="screen-6" class="screen" data-scenario="scenario-5">
+  <div class="screen-content @container max-w-3xl mx-auto p-6">
+
+    <div class="flex items-center gap-2 mb-5" style="border-bottom:1px solid var(--w-border); padding-bottom:8px;">
+      <i data-lucide="arrow-left" class="w-4 h-4"></i>
+      <h2 class="text-lg font-bold" style="color:var(--w-muted)">적자기업(예시)</h2>
+    </div>
+
+    <div class="mb-5">
+      <div class="text-2xl font-bold">12,300원</div>
+      <div class="text-sm" style="color:var(--w-muted)">전일 대비 -2.10%</div>
+    </div>
+
+    <div class="w-row px-4 py-3 mb-4">
+      <div class="flex items-center justify-between">
+        <span class="text-sm font-bold">그레이엄 체크리스트</span>
+        <span class="text-sm font-bold">1/4 만족</span>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <div class="w-row flex items-center justify-between px-4 py-3">
+        <div class="text-sm">PER &lt; 15</div>
+        <div class="flex items-center gap-2"><span class="text-sm w-score-fail">N/A</span><i data-lucide="x" class="w-4 h-4"></i></div>
+      </div>
+      <div class="w-row flex items-center justify-between px-4 py-3">
+        <div class="text-sm">PBR &lt; 1.5</div>
+        <div class="flex items-center gap-2"><span class="text-sm w-score-pass">PBR 0.6</span><i data-lucide="check" class="w-4 h-4"></i></div>
+      </div>
+      <div class="w-row flex items-center justify-between px-4 py-3">
+        <div class="text-sm">부채비율 &lt; 100%</div>
+        <div class="flex items-center gap-2"><span class="text-sm w-score-fail">140%</span><i data-lucide="x" class="w-4 h-4"></i></div>
+      </div>
+      <div class="w-row flex items-center justify-between px-4 py-3">
+        <div class="text-sm">최근 결산 순이익 흑자</div>
+        <div class="flex items-center gap-2"><span class="text-sm w-score-fail">적자</span><i data-lucide="x" class="w-4 h-4"></i></div>
+      </div>
+    </div>
+
+    <div class="screen-notes">
+      <details open>
+        <summary>Notes</summary>
+        <p>최근 결산이 적자인 종목의 상세 화면 — PER은 계산하지 않고 N/A로 표시한다.</p>
+        <ul>
+          <li>트리거: 최근 결산 순이익이 적자인 종목의 상세 진입</li>
+          <li>인터랙션: PER 항목은 "N/A" + 실패 표시, 순이익 흑자 항목도 함께 실패 표시</li>
+        </ul>
+      </details>
+    </div>
+
+  </div>
+</div>
+
+<div id="screen-7" class="screen" data-scenario="scenario-6">
+  <div class="screen-content @container max-w-3xl mx-auto p-6">
+
+    <div class="flex items-center gap-2 mb-5" style="border-bottom:1px solid var(--w-border); padding-bottom:8px;">
+      <i data-lucide="arrow-left" class="w-4 h-4"></i>
+      <h2 class="text-lg font-bold" style="color:var(--w-muted)">상장직후기업(예시)</h2>
+    </div>
+
+    <div class="mb-5">
+      <div class="text-2xl font-bold">34,900원</div>
+      <div class="text-sm" style="color:var(--w-muted)">전일 대비 +0.50%</div>
+    </div>
+
+    <div class="w-row px-4 py-3 mb-4">
+      <div class="flex items-center justify-between">
+        <span class="text-sm font-bold">그레이엄 체크리스트</span>
+        <span class="text-sm font-bold">3개 기준 중 2/3 만족</span>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <div class="w-row flex items-center justify-between px-4 py-3">
+        <div class="text-sm">PER &lt; 15</div>
+        <div class="flex items-center gap-2"><span class="text-sm w-score-pass">PER 11.2</span><i data-lucide="check" class="w-4 h-4"></i></div>
+      </div>
+      <div class="w-row flex items-center justify-between px-4 py-3">
+        <div class="text-sm">PBR &lt; 1.5</div>
+        <div class="flex items-center gap-2"><span class="text-sm w-score-pass">PBR 1.3</span><i data-lucide="check" class="w-4 h-4"></i></div>
+      </div>
+      <div class="w-row flex items-center justify-between px-4 py-3">
+        <div class="text-sm">부채비율 &lt; 100%</div>
+        <div class="flex items-center gap-2"><span class="text-sm" style="color:var(--w-muted)">데이터 없음</span><i data-lucide="minus" class="w-4 h-4" style="color:var(--w-muted)"></i></div>
+      </div>
+      <div class="w-row flex items-center justify-between px-4 py-3">
+        <div class="text-sm">최근 결산 순이익 흑자</div>
+        <div class="flex items-center gap-2"><span class="text-sm w-score-fail">적자</span><i data-lucide="x" class="w-4 h-4"></i></div>
+      </div>
+    </div>
+
+    <div class="screen-notes">
+      <details open>
+        <summary>Notes</summary>
+        <p>DART에 일부 재무 항목이 없어 계산이 불가능한 종목의 상세 화면.</p>
+        <ul>
+          <li>트리거: 상장 직후 등의 이유로 일부 재무데이터를 가져올 수 없는 종목의 상세 진입</li>
+          <li>인터랙션: 계산 불가능한 기준은 "데이터 없음" + 중립(대시) 아이콘으로 표시하고, 총점은 계산 가능한 기준 개수를 분모로 표시</li>
+        </ul>
+      </details>
+    </div>
+
+  </div>
+</div>
+
+<script>
+var currentScreen = 0;
+var screenIds = [];
+
+function selectStock(evt, stockId) {
+  if (document.body.classList.contains('viewport-mobile')) {
+    show(1);
+    return;
+  }
+  document.querySelectorAll('#screen-0 .w-row').forEach(function(r) { r.style.borderColor = 'var(--w-border)'; });
+  var row = document.getElementById('row-' + stockId);
+  if (row) row.style.borderColor = 'var(--w-text)';
+}
+
+function show(id) {
+  document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+  document.getElementById('screen-' + id).classList.add('active');
+  document.querySelectorAll('nav button[id^="nav-"]').forEach(function(b) { b.classList.remove('active'); });
+  document.getElementById('nav-' + id).classList.add('active');
+  currentScreen = screenIds.indexOf(id);
+}
+
+function setViewport(mode) {
+  document.body.classList.remove('viewport-mobile', 'viewport-desktop');
+  document.body.classList.add('viewport-' + mode);
+  document.querySelectorAll('.vp-toggle button').forEach(function(b) { b.classList.remove('active'); });
+  document.getElementById('vp-' + mode).classList.add('active');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('nav button[id^="nav-"]').forEach(function(b) {
+    screenIds.push(parseInt(b.id.replace('nav-', '')));
+  });
+  var first = document.querySelector('nav button[id^="nav-"]');
+  if (first) first.click();
+  lucide.createIcons();
+});
+</script>
+</body>
+</html>

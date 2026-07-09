@@ -150,7 +150,7 @@
 
 ---
 
-### Task 4: 종목 재무데이터 + 그레이엄 판정 API
+### Task 4: 종목 재무데이터 + 그레이엄 판정 API ✅
 
 - **담당 시나리오**: Scenario 4, 5, 6 (API 레벨)
 - **크기**: M (3-5 파일)
@@ -161,17 +161,17 @@
   - `services/dart-client.ts`에 corpCode 기준 주요계정 조회 함수 추가 (`StockFinancials` 반환)
   - `app/api/stocks/[code]/graham/route.ts` / `.test.ts` — DART 조회 → `evaluateGraham` 호출 → `GrahamResult` 반환
 - **수용 기준**:
-  - [ ] 재무데이터가 정상인 종목코드 요청 → `GrahamResult` JSON(4개 criteria 포함) 200 응답
-  - [ ] 최근 결산 적자 종목 요청 → 응답의 PER criterion이 `value: "N/A"`
-  - [ ] DART에 일부 계정이 없는 종목 요청 → 해당 criterion이 `status: "unavailable"`로 응답, 나머지는 정상 판정
+  - [x] 재무데이터가 정상인 종목코드 요청 → `GrahamResult` JSON(4개 criteria 포함) 200 응답
+  - [x] 최근 결산 적자 종목 요청 → 응답의 PER criterion이 `value: "N/A"`
+  - [x] DART에 일부 계정이 없는 종목 요청 → 해당 criterion이 `status: "unavailable"`로 응답, 나머지는 정상 판정
 - **검증**: `bun run test -- graham-route` (DART 호출은 mock, Task 2의 실제 `evaluateGraham` 사용)
 
 ---
 
-### Checkpoint: Task 1-4 이후
-- [ ] 모든 테스트 통과: `bun run test`
-- [ ] 빌드 성공: `bun run build`
-- [ ] 마스터 리스트가 준비되어 있고, 임의의 코스피200 종목코드로 시세·그레이엄 API를 직접 호출하면(curl 등) 올바른 JSON이 반환된다
+### Checkpoint: Task 1-4 이후 ✅
+- [x] 모든 테스트 통과: `bun run test` (29 tests)
+- [x] 빌드 성공: `bun run build`
+- [x] 마스터 리스트가 준비되어 있고, 임의의 코스피200 종목코드로 시세·그레이엄 API를 직접 호출하면(curl 등) 올바른 JSON이 반환된다 — 005930 실호출로 확인 (PER 35.9 fail, PBR 3.7 fail, 부채비율 30% pass, 흑자 pass → 2/4)
 
 ---
 
